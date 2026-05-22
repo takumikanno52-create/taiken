@@ -1,0 +1,310 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box ;
+}
+
+body{
+    background-color: #0d0d0d;
+    color: #00ff41;
+    font-family: 'Courier New' , Courier, monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    min-height: 100vh;
+}
+
+h1{
+    font-size: 22px;
+    text-align: center;
+    margin-bottom: 16px;
+    line-height: 1.6;
+    color: #00ff41;
+}
+
+p{
+    font-size: 14px;
+    color: #aaaaaa;
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+form{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 40px;
+}
+
+button{
+    background-color: #0d0d0d;
+    color: #00ff41;
+    border: 1px solid #00ff41;
+    padding: 14px 24px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+button:hover{
+    background-color: #00ff41 ;
+    color: #0d0d0d;
+}
+
+.result{
+    text-align: center;
+    font-size: 16px;
+    line-height: 1.8;
+}
+.story{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    max-width: 600px;
+    text-align: center;
+}
+
+.alert-text{
+    font-size: 20px;
+    color: #ff4444;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink{
+    0% { opacity: 1; }
+    50%{ opacity: 0; }
+    100%{ opacity: 1; }
+}
+
+.cipher-box{
+    border: 1px solid #00ff41;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+.cipher-text{
+    font-size: 32px;
+    font-weight: bold;
+    color: #00ff41;
+    letter-spacing: 8px;
+    margin-bottom: 16px;
+}
+
+input[type="text"]{
+    background-color: #0d0d0d;
+    color: #00ff41;
+    border: 1px solid #00ff41;
+    padding: 12px 16px;
+    font-family: 'courier New', Courier, monospace;
+    font-size: 16px;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 12px;
+}
+
+input[type="text"]::placeholder{
+    color: #555555;
+}
+
+.loading{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+}
+
+.loading-text{
+    font-size: 10px;
+    color: #00ff41;
+    animation: blink 0.5s infinite;
+}
+
+.progress-bar{
+    width: 300px;
+    height: 10px;
+    border: 1px solid #00ff41;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill{
+    height: 100%;
+    background-color: #00ff41;
+    width: 0%;
+    animation: fill 3s linear forwards;
+}
+
+@keyframes fill{
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+
+#loading{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#result{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.warning-text{
+    font-size: 14px;
+    color: #ff4444;
+    text-align: center;
+}
+
+.advice-box {
+    border: 1px solid #00ff41;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+    max-width: 500px;
+    width: 100%;
+}
+
+.advice-box p{
+    margin-bottom: 8px;
+    color: #00ff41;
+}
+
+canvas#matrix{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.15;
+}
+
+.typing{
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid #00ff41;
+    width: 0;
+    animation: typing 3s steps(30) forwards, blink-caret 0.5s step-end infinite;
+    max-width: 100%;
+    margin: 0 auto 16px;
+    text-align: left;
+    display: inline-block;
+}
+
+@keyframes typing{
+    from{ width: 0;}
+    to { width: 100%; }
+}
+
+@keyframes blink-caret{
+    from, to { border-color: transparent; }
+    50% { border-color: #00ff41; }
+}
+
+.glitch{
+    position: relative;
+    color: #00ff41;
+}
+
+.glitch::before,
+.glitch::after{
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.glitch::before{
+    color: #ff0000;
+    animation: glitch1 2s infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+}
+
+.glitch::after{
+    color: #0000ff;
+    animation: glitch2 2s infinite;
+    clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+}
+
+@keyframes glitch1{
+    0%, 100%{ transform: translate(0);}
+    20% {transform: translate(-2px, 2px);}
+    40% {transform: translate(2px, -2px);}
+    60% {transform: translate(-1px, 1px);}
+    80% {transform: translate(1px, -1px);}
+}
+
+@keyframes glitch2{
+    0%, 100%{ transform: translate(0);}
+    20% {transform: translate(2px, -2px);}
+    40% {transform: translate(-2px, 2px);}
+    60% {transform: translate(1px, -1px);}
+    80% {transform: translate(-1px, 1px);}
+}
+
+table{
+    border-collapse: collapse;
+    margin: 10px auto;
+    font-size: 11px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    display: block;
+}
+
+table td, table th{
+    border: 1px solid #00ff41;
+    padding: 4px 5px;
+    text-align: center;
+    color: #00ff41;
+}
+
+table th{
+    background-color: #0d2b0d;
+}
+
+#alpha-table{
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 10px;
+}
+
+::-webkit-scrollbar{
+    width: 6px;
+    height: 6px;
+}
+
+::webkit-scrollbar-track{
+    background: #0d0d0d;
+    border: 1px solid #00ff41;
+}
+
+::webkit-scrollbar-thumb{
+    background: #00ff41;
+    border-radius: 4px;
+}
+
+::webkit-scrollbar-thumb:hover{
+    background: #00cc33;
+}

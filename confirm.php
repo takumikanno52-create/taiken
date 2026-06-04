@@ -70,7 +70,19 @@ function drawMatrix() {
 }
 
 setInterval(drawMatrix, 33);
-</script>>
+</script>
+<script>
+let adminInput = '';
+document.addEventListener('keydown', function(e) {
+    adminInput += e.key.toUpperCase();
+    if (adminInput.includes('SOUSAI')) {
+        window.location.href = 'admin.php';
+    }
+    if (adminInput.length > 10) {
+        adminInput = adminInput.slice(-10);
+    }
+});
+</script>
 
 </body>
 </html>

@@ -25,6 +25,12 @@ if($answer === $correct){
         $_SESSION['score'] += 1;
     }
 }
+
+// 管理者コマンド判定
+if ($answer === 'SOUSAI') {
+    header('Location: admin.php');
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -109,6 +115,17 @@ setInterval(drawMatrix, 33);
     }
 
     typing();
-    </script>
+
+let adminInput = '';
+document.addEventListener('keydown', function(e) {
+    adminInput += e.key.toUpperCase();
+    if (adminInput.includes('SOUSAI')) {
+        window.location.href = 'admin.php';
+    }
+    if (adminInput.length > 10) {
+        adminInput = adminInput.slice(-10);
+    }
+});
+</script>
 </body>
 </html>

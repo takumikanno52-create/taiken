@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>右モニター</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=DotGothic16&family=Share+Tech+Mono&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  color: #00ff41;
+  font-family: 'Share Tech Mono', monospace;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(0,80,20,.18), transparent 30%),
+    radial-gradient(circle at 50% 70%, rgba(0,40,10,.15), transparent 25%),
+    linear-gradient(180deg, #050a05 0%, #030703 50%, #020402 100%);
+}
+
+/* グリッド */
+.grid {
+  position: fixed; inset: 0;
+  background:
+    repeating-linear-gradient(to right, transparent 0 69px, rgba(0,180,50,.12) 69px 70px),
+    repeating-linear-gradient(to bottom, transparent 0 69px, rgba(0,180,50,.12) 69px 70px);
+  transform: perspective(900px) rotateX(76deg) scale(1.5) translateY(20vh);
+  transform-origin: center bottom;
+  opacity: 0.6;
+  z-index: 0;
+}
+
+.grid-glow {
+  position: fixed; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0,255,65,.03), transparent 30%, rgba(0,200,80,.02) 70%, transparent),
+    radial-gradient(circle at 50% 72%, rgba(0,180,50,.12), transparent 35%);
+  mix-blend-mode: screen;
+  z-index: 0;
+}
+
+/* ノイズ */
+.noise {
+  position: fixed; inset: 0;
+  opacity: .09;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.8'/%3E%3C/svg%3E");
+  mix-blend-mode: screen;
+  animation: noiseShift .25s steps(2) infinite;
+  z-index: 1;
+}
+
+/* スキャンライン */
+.scanlines {
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,.05) 0px, rgba(255,255,255,.05) 1px,
+    rgba(0,0,0,0) 2px, rgba(0,0,0,0) 4px
+  );
+  opacity: .1; mix-blend-mode: soft-light;
+  z-index: 1;
+}
+
+/* ビネット */
+.vignette {
+  position: fixed; inset: 0;
+  background: radial-gradient(circle at center, transparent 48%, rgba(0,0,0,.2) 70%, rgba(0,0,0,.75) 100%);
+  z-index: 1;
+}
+
+/* グリッチバー */
+.glitch-bars span {
+  position: fixed; left: 0; width: 100%; height: 8px; opacity: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(0,255,65,.2) 12%, rgba(255,255,255,.5) 22%, rgba(0,200,65,.2) 40%, transparent 62%);
+  animation: barBlink 4.8s infinite steps(1);
+  mix-blend-mode: screen; z-index: 2;
+}
+.glitch-bars span:nth-child(1) { top: 20%; animation-delay: .4s; }
+.glitch-bars span:nth-child(2) { top: 45%; animation-delay: 2s; height: 5px; }
+.glitch-bars span:nth-child(3) { top: 70%; animation-delay: 3.2s; }
+
+/* コーナー */
+.corners::before, .corners::after,
+.frame::before, .frame::after {
+  content: ""; position: fixed;
+  width: 6vw; height: 6vw;
+  border-color: rgba(0,255,65,.4);
+  filter: drop-shadow(0 0 6px rgba(0,255,65,.18));
+}
+.corners::before { top: 2vh; left: 1.8vw; border-top: 2px solid; border-left: 2px solid; }
+.corners::after  { top: 2vh; right: 1.8vw; border-top: 2px solid; border-right: 2px solid; }
+.frame::before   { bottom: 2vh; left: 1.8vw; border-bottom: 2px solid; border-left: 2px solid; }
+.frame::after    { bottom: 2vh; right: 1.8vw; border-bottom: 2px solid; border-right: 2px solid; }
+
+/* メインコンテンツ */
+.content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 28px 36px;
+  gap: 20px;
+}
+
+/* セクションヘッダー */
+.section-label {
+  font-size: clamp(9px, 1vw, 11px);
+  color: rgba(0,255,65,.3);
+  letter-spacing: 4px;
+  margin-bottom: 4px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.section-icon {
+  width: 30px; height: 30px;
+  border: 1.5px solid rgba(0,255,65,.5);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  background: rgba(0,255,65,.04);
+  box-shadow: 0 0 8px rgba(0,255,65,.1);
+}
+
+.section-title {
+  font-family: 'DotGothic16', sans-serif;
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 700;
+  color: #00ff41;
+  letter-spacing: 3px;
+  text-shadow: 0 0 8px rgba(0,255,65,.5);
+}
+
+/* 区切り線 */
+.divider {
+  width: 100%; height: 1px;
+  background: linear-gradient(to right, #00ff41, transparent);
+  opacity: 0.2;
+}
+
+/* 説明文 */
+.desc-block {
+  border-left: 3px solid #00ff41;
+  padding: 12px 16px;
+  background: rgba(0,255,65,.03);
+  line-height: 1.9;
+  font-size: clamp(12px, 1.4vw, 15px);
+  color: rgba(0,255,65,.7);
+  letter-spacing: 0.5px;
+  box-shadow: inset 0 0 20px rgba(0,255,65,.02);
+}
+
+/* 時間バッジ */
+.time-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(0,255,65,.2);
+  padding: 4px 12px;
+  font-size: clamp(9px, 1vw, 11px);
+  color: rgba(0,255,65,.4);
+  letter-spacing: 2px;
+  margin-top: 8px;
+  background: rgba(0,255,65,.02);
+}
+
+/* 体験リスト */
+.exp-list { display: flex; flex-direction: column; gap: 10px; }
+
+.exp-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 16px;
+  border: 1px solid rgba(0,255,65,.1);
+  border-left: 3px solid rgba(0,255,65,.5);
+  background: rgba(0,255,65,.03);
+  transition: border-left-color 0.2s, box-shadow 0.2s;
+}
+.exp-item:hover {
+  border-left-color: #00ff41;
+  box-shadow: 0 0 12px rgba(0,255,65,.08);
+}
+
+.exp-num {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 700;
+  color: rgba(0,255,65,.2);
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: 2px;
+  text-shadow: 0 0 8px rgba(0,255,65,.3);
+}
+
+.exp-title {
+  font-family: 'DotGothic16', sans-serif;
+  font-size: clamp(12px, 1.3vw, 15px);
+  font-weight: 600;
+  color: #00ff41;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  text-shadow: 0 0 6px rgba(0,255,65,.3);
+}
+
+.exp-desc {
+  font-size: clamp(10px, 1.1vw, 13px);
+  color: rgba(0,255,65,.5);
+  line-height: 1.6;
+}
+
+/* ウェルカムバー */
+.welcome-bar {
+  border: 1.5px solid rgba(0,255,65,.5);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(0,255,65,.04);
+  margin-top: auto;
+  box-shadow: 0 0 16px rgba(0,255,65,.08), inset 0 0 16px rgba(0,255,65,.03);
+}
+
+.welcome-icon {
+  font-size: clamp(20px, 2.5vw, 28px);
+  animation: blink 1.8s step-end infinite;
+}
+
+.welcome-text {
+  font-family: 'DotGothic16', sans-serif;
+  font-size: clamp(14px, 1.6vw, 19px);
+  font-weight: 600;
+  color: #00ff41;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(0,255,65,.5);
+}
+
+.qr-hint {
+  font-size: clamp(9px, 1vw, 11px);
+  color: rgba(0,255,65,.3);
+  letter-spacing: 2px;
+  text-align: right;
+}
+
+/* アニメーション */
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+@keyframes barBlink {
+  0%,76%,100%{opacity:0;transform:translateX(0)}
+  77%{opacity:.6;transform:translateX(-1.2%)}
+  79%{opacity:.2;transform:translateX(1.5%)}
+  81%{opacity:.7;transform:translateX(-.6%)}
+  83%{opacity:0;transform:translateX(0)}
+}
+@keyframes noiseShift {
+  0%{transform:translate(0,0)} 25%{transform:translate(-1%,.5%)}
+  50%{transform:translate(.8%,-.4%)} 75%{transform:translate(-.4%,.8%)}
+  100%{transform:translate(0,0)}
+}
+</style>
+</head>
+<body>
+<div class="grid"></div>
+<div class="grid-glow"></div>
+<div class="glitch-bars"><span></span><span></span><span></span></div>
+<div class="corners"></div>
+<div class="frame"></div>
+<div class="noise"></div>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<div class="content">
+
+  <div>
+    <div class="section-label">// ABOUT THIS WORK</div>
+    <div class="section-header">
+      <div class="section-icon">💻</div>
+      <div class="section-title">作品の説明</div>
+    </div>
+    <div class="desc-block">
+      HTML / CSS / PHP / Python を使って制作したセキュリティ体験型 Web アプリです。<br>
+      暗号解読とパスワード強度診断を通じて、サイバーセキュリティの基礎が身につきます。<br>
+      入学わずか 2 ヶ月の 1 年生が、授業で学んだ技術のみで制作しました。
+    </div>
+    <div class="time-badge">⏱ 所要時間：約 5 〜 10 分　　対象：どなたでも参加できます</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div>
+    <div class="section-label">// WHAT YOU CAN EXPERIENCE</div>
+    <div class="section-header">
+      <div class="section-icon">🎮</div>
+      <div class="section-title">体験できること</div>
+    </div>
+    <div class="exp-list">
+      <div class="exp-item">
+        <div class="exp-num">01</div>
+        <div>
+          <div class="exp-title">🔐　暗号解読に挑戦する</div>
+          <div class="exp-desc">実際にシーザー暗号を解読して、ホワイトハッカーの思考プロセスを体験できます。</div>
+        </div>
+      </div>
+      <div class="exp-item">
+        <div class="exp-num">02</div>
+        <div>
+          <div class="exp-title">⚡　パスワードの強度をリアルタイムで知る</div>
+          <div class="exp-desc">あなたのパスワードが何秒・何億年で破られるかをその場で確認できます。</div>
+        </div>
+      </div>
+      <div class="exp-item">
+        <div class="exp-num">03</div>
+        <div>
+          <div class="exp-title">🛡　強いパスワードを自分で作る</div>
+          <div class="exp-desc">ヒントをもとに強力なパスワードを作り、攻撃を阻止する体験ができます。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="welcome-bar">
+    <div class="welcome-icon">💬</div>
+    <div class="welcome-text">質問・体験、大歓迎です！お気軽にどうぞ。</div>
+  </div>
+
+  <div class="qr-hint">▶ QRコードをスキャンして体験スタート</div>
+
+</div>
+</body>
+</html>
